@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from reportlab.pdfgen import canvas
-import re
+import json, os, re
 
 app = FastAPI()
 
@@ -15,6 +15,52 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ------------------ USER AUTH STORAGE ------------------
+USERS_FILE = "users.json"
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    with open(USERS_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(data):
+    with open(USERS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+class SignupData(BaseModel):
+    email: str
+    password: str
+
+class LoginData(BaseModel):
+    email: str
+    password: str
+
+@app.post("/signup")
+def signup(data: SignupData):
+    users = load_users()
+
+    if data.email in users:
+        raise HTTPException(400, "Email already registered.")
+
+    users[data.email] = {"password": data.password}
+    save_users(users)
+
+    return {"message": "Signup successful!"}
+
+@app.post("/login")
+def login(data: LoginData):
+    users = load_users()
+
+    if data.email not in users:
+        raise HTTPException(400, "User not found.")
+
+    if users[data.email]["password"] != data.password:
+        raise HTTPException(400, "Incorrect password.")
+
+    return {"message": "Login successful"}
+
 
 # ------------------ STATE ------------------
 def reset_user():
@@ -29,7 +75,6 @@ USER = reset_user()
 
 class Message(BaseModel):
     text: str
-
 
 # ---------------- UNDERWRITING ----------------
 def run_underwriting():
@@ -48,7 +93,6 @@ def run_underwriting():
         "reply": f"🎉 Congratulations! Your loan of ₹{amount} is approved.\n"
                  "Would you like me to generate your sanction letter?"
     }
-
 
 # ---------------- CHAT BOT ----------------
 @app.post("/chat")
@@ -90,7 +134,6 @@ def chat(msg: Message):
     if stage == "kyc":
         pan = user_input.upper().strip()
 
-        # PAN CHECK
         if not re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]$", pan):
             return {"reply": "Invalid PAN. Enter something like ABCDE1234F."}
 
@@ -103,19 +146,14 @@ def chat(msg: Message):
     # ---------- YES = generate sanction ----------
     if stage == "decision" and user_input.lower() in ["yes", "generate"]:
         USER["stage"] = "sanction"
-        return {
-            "reply": "Your sanction letter is ready:\nhttp://127.0.0.1:8000/download-sanction"
-        }
+        return {"reply": "Your sanction letter is ready:\nhttp://127.0.0.1:8000/download-sanction"}
 
     if stage == "decision":
         return {"reply": "Please type YES to generate your sanction letter."}
 
     # ---------- Already sanctioned ----------
     if stage == "sanction":
-        return {
-            "reply": "Your sanction letter is ready:\nhttp://127.0.0.1:8000/download-sanction"
-        }
-
+        return {"reply": "Your sanction letter is ready:\nhttp://127.0.0.1:8000/download-sanction"}
 
 # ---------------- PDF ----------------
 def generate_sanction_pdf(filename, amount, salary, pan):
@@ -135,7 +173,6 @@ def generate_sanction_pdf(filename, amount, salary, pan):
     c.drawString(70, 640, "- Standard NBFC policies apply")
 
     c.save()
-
 
 @app.get("/download-sanction")
 def download_sanction():

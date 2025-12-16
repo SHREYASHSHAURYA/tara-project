@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>TARA – Loan Assistant</title>
-
 <style>
 /* THEME VARIABLES */
 :root {
@@ -15,6 +14,7 @@
     --text: #000;
     --timestamp: #777;
 }
+
 .dark {
     --bg: #0d1117;
     --chat-bg: rgba(20,20,20,0.7);
@@ -24,6 +24,7 @@
     --text: #e6edf3;
     --timestamp: #9ba1a8;
 }
+
 .dark #chat-container {
     background: #111 !important;
     border: 4px solid rgba(255,255,255,0.20) !important;
@@ -51,6 +52,7 @@ body {
     flex-direction: column;
     overflow: hidden;
 }
+
 #header {
     background: var(--header-bg);
     padding: 18px;
@@ -60,9 +62,11 @@ body {
     text-align: center;
     position: relative;
 }
+
+/* THEME BUTTON */
 #theme-toggle {
     position: absolute;
-    right: 15px;
+    right: 60px;
     top: 10px;
     background: rgba(255,255,255,0.25);
     border: none;
@@ -74,6 +78,22 @@ body {
     color: white;
 }
 
+/* LOGOUT BUTTON */
+#logout-btn {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    background: linear-gradient(90deg, #ff4e4e, #ff7d7d);
+    border: none;
+    border-radius: 10px;
+    padding: 6px 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+#logout-btn:hover { transform: scale(1.08); }
+
 #messages {
     flex: 1;
     padding: 20px;
@@ -81,16 +101,12 @@ body {
 }
 
 /* ALIGNMENT ROWS */
-.bot-row {
+.bot-row, .user-row {
     display: flex;
-    justify-content: flex-start;
     margin-bottom: 15px;
 }
-.user-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 15px;
-}
+.bot-row { justify-content: flex-start; }
+.user-row { justify-content: flex-end; }
 
 /* BUBBLES */
 .bot-msg, .user-msg {
@@ -108,6 +124,7 @@ body {
     color: var(--text);
     border-bottom-left-radius: 6px;
 }
+
 .user-msg {
     background: var(--user-bubble);
     color: white !important;
@@ -129,10 +146,7 @@ body {
     cursor: pointer;
     gap: 6px;
 }
-.reaction-bar span {
-    padding: 3px 6px;
-    cursor: pointer;
-}
+.reaction-bar span { padding: 3px 6px; cursor: pointer; }
 
 /* INPUT BAR */
 #input-area {
@@ -142,12 +156,14 @@ body {
     border-top: 1px solid #444;
     background: rgba(255,255,255,0.15);
 }
+
 #text-input {
     flex: 1;
     padding: 12px;
     border-radius: 14px;
     border: 1px solid #aaa;
 }
+
 button {
     padding: 12px 20px;
     background: linear-gradient(90deg, #0a84ff, #4ab1ff);
@@ -157,6 +173,7 @@ button {
     font-weight: bold;
     cursor: pointer;
 }
+
 button:hover { transform: scale(1.05); }
 </style>
 </head>
@@ -166,7 +183,9 @@ button:hover { transform: scale(1.05); }
 <div id="chat-container">
     <div id="header">
         TARA – Loan Assistant
+
         <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <button id="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <div id="messages"></div>
@@ -174,11 +193,16 @@ button:hover { transform: scale(1.05); }
     <div id="input-area">
         <input id="text-input" type="text" placeholder="Type a message..."
                onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendMessage(); }">
+
         <button onclick="sendMessage()">Send</button>
     </div>
 </div>
 
 <script>
+/* SESSION PROTECTION */
+if (!localStorage.getItem("loggedIn")) {
+    window.location.href = "login.html";
+}
 
 /* THEME */
 function toggleTheme() {
@@ -187,18 +211,22 @@ function toggleTheme() {
         document.body.classList.contains("dark") ? "☀️" : "🌙";
 }
 
+/* LOGOUT */
+function logout() {
+    localStorage.removeItem("loggedIn");
+    window.location.href = "login.html";
+}
+
 /* TIMESTAMP */
 function timestamp() {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-/* CLICKABLE LINKS */
+/* MAKE LINKS CLICKABLE */
 function makeLinksClickable(text) {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlRegex, url =>
-        `<a href="${url}" target="_blank" style="color:#0a84ff;font-weight:bold;text-decoration:none;">
-            ${url}
-        </a>`
+    return text.replace(
+        /(https?:\/\/[^\s]+)/g,
+        url => `<a href="${url}" target="_blank" style="color:#0a84ff;font-weight:bold;text-decoration:none;">${url}</a>`
     );
 }
 
@@ -210,40 +238,16 @@ function addMessage(text, sender) {
     row.className = sender === "bot" ? "bot-row" : "user-row";
 
     const wrapper = document.createElement("div");
-
     const bubble = document.createElement("div");
+
     bubble.className = sender === "bot" ? "bot-msg" : "user-msg";
     bubble.innerHTML = makeLinksClickable(text);
-    bubble.dataset.reacted = "false";
-
-    /* REACTIONS */
-    const reactions = document.createElement("div");
-    reactions.className = "reaction-bar";
-
-    const emojis = ["👍", "❤️", "😂", "😮", "😢"];
-    reactions.innerHTML = emojis.map(e => `<span>${e}</span>`).join("");
-
-    reactions.querySelectorAll("span").forEach(span => {
-        span.onclick = () => {
-            if (bubble.dataset.reacted === "true") return;
-
-            bubble.innerHTML += " " + span.innerText;
-            bubble.dataset.reacted = "true";
-            reactions.style.display = "none";
-        };
-    });
-
-    bubble.onclick = () => {
-        if (bubble.dataset.reacted === "true") return;
-        reactions.style.display = reactions.style.display === "flex" ? "none" : "flex";
-    };
 
     wrapper.appendChild(bubble);
-    wrapper.appendChild(reactions);
     row.appendChild(wrapper);
     box.appendChild(row);
 
-    /* FIXED TIMESTAMP ALIGNMENT */
+    /* Timestamp */
     const time = document.createElement("div");
     time.className = "timestamp";
     time.style.textAlign = sender === "user" ? "right" : "left";
@@ -264,14 +268,13 @@ async function sendMessage() {
 
     const res = await fetch("http://127.0.0.1:8000/chat", {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ text })
     });
 
     const data = await res.json();
     addMessage(data.reply, "bot");
 }
-
 </script>
 
 </body>
