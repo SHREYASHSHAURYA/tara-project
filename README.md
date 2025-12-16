@@ -14,6 +14,7 @@ A complete loan‑assistant system with:
 
 # **PROJECT STRUCTURE**
 
+```plaintext
 tara-project/
 │
 ├── tara-ai/              # Backend (FastAPI)
