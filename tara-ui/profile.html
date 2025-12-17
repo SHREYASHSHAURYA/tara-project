@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Your Profile</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #e8ecf1;
+    font-family: "SF Pro Display", Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+#card {
+    width: 350px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+h2 { text-align:center; }
+.data { margin: 10px 0; font-size: 16px; }
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg,#00c8ff,#4affd7);
+    color: white;
+    cursor: pointer;
+    margin-top: 15px;
+}
+button:hover { transform: scale(1.05); }
+</style>
+</head>
+<body>
+
+<div id="card">
+    <h2>Your Profile</h2>
+
+    <div class="data"><b>Name:</b> <span id="name"></span></div>
+    <div class="data"><b>Email:</b> <span id="email"></span></div>
+    <div class="data"><b>City:</b> <span id="city"></span></div>
+    <div class="data"><b>Occupation:</b> <span id="occupation"></span></div>
+    <div class="data"><b>Bank Account:</b> <span id="bank"></span></div>
+
+    <div class="data"><b>PAN Status:</b> <span id="pan"></span></div>
+
+    <button onclick="location.href='verify.html'">Verify PAN</button>
+    <button onclick="location.href='index.html'">Back</button>
+</div>
+
+<script>
+document.getElementById("name").innerText = localStorage.getItem("user_name");
+document.getElementById("email").innerText = localStorage.getItem("user_email");
+document.getElementById("city").innerText = localStorage.getItem("user_city");
+document.getElementById("occupation").innerText = localStorage.getItem("user_occupation");
+document.getElementById("bank").innerText = localStorage.getItem("user_bank_account");
+
+document.getElementById("pan").innerText =
+    localStorage.getItem("pan_verified") === "true" ? "Verified ✔" : "Not Verified ✖";
+</script>
+
+</body>
+</html>

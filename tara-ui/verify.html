@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Verify PAN</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #e8ecf1;
+    font-family: "SF Pro Display", Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+#box {
+    width: 330px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    text-align:center;
+}
+button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg,#00c8ff,#4affd7);
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<div id="box">
+    <h2>PAN Verification</h2>
+
+    <p>This is a placeholder. PAN will be marked as verified.</p>
+
+    <button onclick="verify()">Verify Now</button>
+</div>
+
+<script>
+function verify() {
+    localStorage.setItem("pan_verified", "true");
+    alert("PAN Verified!");
+    location.href = "profile.html";
+}
+</script>
+
+</body>
+</html>

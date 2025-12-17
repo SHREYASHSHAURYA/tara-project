@@ -16,8 +16,6 @@
     --button1: #006aff;
     --button2: #00b7ff;
 }
-
-/* CONSISTENT WITH CHAT DARK MODE */
 .dark {
     --bg1: #0d1117;
     --bg2: #0f131a;
@@ -30,7 +28,6 @@
     --button1: #1f6feb;
     --button2: #58a6ff;
 }
-
 /* BACKGROUND */
 body {
     margin: 0;
@@ -39,38 +36,31 @@ body {
     justify-content: center;
     align-items: center;
     font-family: "SF Pro Display", Arial, sans-serif;
-
     background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4));
     background-size: 400% 400%;
     animation: bgMove 14s ease infinite;
-
     color: var(--text);
 }
-
 @keyframes bgMove {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-
 /* ANIMATIONS */
 @keyframes popUp {
     0% { opacity: 0; transform: translateY(20px) scale(0.97); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 @keyframes float {
     0% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
     100% { transform: translateY(0); }
 }
-
 @keyframes glowPulse {
     0% { box-shadow: 0 0 20px rgba(0,132,255,0.15); }
     50% { box-shadow: 0 0 30px rgba(0,132,255,0.35); }
     100% { box-shadow: 0 0 20px rgba(0,132,255,0.15); }
 }
-
 /* CARD */
 .card {
     width: 360px;
@@ -78,20 +68,16 @@ body {
     backdrop-filter: blur(18px);
     padding: 30px;
     border-radius: 20px;
-
     border: 3.5px solid rgba(255,255,255,0.25);
-
     animation: 
         popUp 0.6s ease-out,
         float 6s ease-in-out infinite,
         glowPulse 4s ease-in-out infinite;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
 }
-
 /* LOGO + TAGLINE */
 .logo {
     font-size: 32px;
@@ -100,20 +86,17 @@ body {
     letter-spacing: 1.5px;
     color: var(--text);
 }
-
 .tagline {
     font-size: 14px;
     margin-bottom: 20px;
     opacity: 0.9;
     color: var(--text);
 }
-
 /* HEADING */
 h2 {
     margin-bottom: 16px;
     color: var(--text);
 }
-
 /* INPUTS */
 input {
     width: 90%;
@@ -125,11 +108,9 @@ input {
     color: var(--text);
     font-size: 15px;
 }
-
 input::placeholder {
     color: rgba(255,255,255,0.6);
 }
-
 /* BUTTON */
 button {
     width: 90%;
@@ -143,22 +124,16 @@ button {
     cursor: pointer;
     font-weight: 600;
 }
-
 button:hover { transform: scale(1.04); }
-
-/* TEXT */
 p {
     margin-top: 12px;
     color: var(--text);
 }
-
 a {
     color: var(--text);
     font-weight: bold;
     text-decoration: none;
 }
-
-/* THEME TOGGLE */
 .toggle {
     position: absolute;
     top: 12px;
@@ -169,25 +144,30 @@ a {
 }
 </style>
 </head>
-
 <body>
-
 <div class="card">
     <div class="toggle" onclick="toggleTheme()">🌙</div>
-
     <div class="logo">T A R A</div>
     <div class="tagline">Your Intelligent Loan Assistant</div>
-
     <h2>Create Account</h2>
 
     <input id="email" type="text" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
 
+    <!-- ⭐ NEW FIELDS (ADDED ONLY) ⭐ -->
+    <input id="name" type="text" placeholder="Full Name">
+    <input id="city" type="text" placeholder="City">
+    <input id="occupation" type="text" placeholder="Occupation">
+    <input id="bank_account" type="text" placeholder="Bank Account Number">
+
     <button onclick="signup()">Sign Up</button>
+
+    <button onclick="guestLogin()" style="margin-top:10px;background:linear-gradient(90deg,#00c8ff,#4affd7);border:none;color:white;">
+        Continue as Guest
+    </button>
 
     <p>Already have an account? <a href="login.html">Login</a></p>
 </div>
-
 <script>
 function toggleTheme() {
     document.body.classList.toggle("dark");
@@ -199,13 +179,29 @@ async function signup() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    const name = document.getElementById("name").value;
+    const city = document.getElementById("city").value;
+    const occupation = document.getElementById("occupation").value;
+    const bank_account = document.getElementById("bank_account").value;
+
     const res = await fetch("http://127.0.0.1:8000/signup", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({email, password})
+        body: JSON.stringify({
+            email, password, name, city, occupation, bank_account
+        })
     });
 
     if (res.ok) {
+
+        // store for profile display
+        localStorage.setItem("user_email", email);
+        localStorage.setItem("user_name", name);
+        localStorage.setItem("user_city", city);
+        localStorage.setItem("user_occupation", occupation);
+        localStorage.setItem("user_bank_account", bank_account);
+        localStorage.setItem("pan_verified", "false");
+
         alert("Signup successful!");
         window.location.href = "login.html";
     } else {
@@ -213,10 +209,12 @@ async function signup() {
         alert(err.detail);
     }
 }
-</script>
 
+function guestLogin() {
+    localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("guest", "true");
+    window.location.href = "index.html";
+}
+</script>
 </body>
 </html>
-
-
-
