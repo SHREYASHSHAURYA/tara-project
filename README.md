@@ -1,109 +1,157 @@
 # TARA – AI Loan Assistant
+A complete loan‑assistant system with:
+- FastAPI backend
+- Interactive chat UI
+- Login + Signup system
+- Session handling (localStorage)
+- Dark/Light mode
+- Glass UI + animations
+- Logout system
+- PDF sanction letter generation
+- Full underwriting workflow
 
-A complete loan‑assistant system with a FastAPI backend and a custom HTML/CSS/JS chat interface. Users can enter loan details, validate PAN, check eligibility, react to messages, switch themes, and download a sanction letter (PDF).
+------------------------------------------------------------
 
-## Project Structure
-```
+# PROJECT STRUCTURE
+
 tara-project/
-│
-├── tara-ai/          # Backend
-│   └── main.py
-│
-└── tara-ui/          # Frontend
-    └── index.html
-```
+    tara-ai/               (Backend – FastAPI)
+        main.py
+        users.json
+        sanction_letter.pdf
 
-## Backend (FastAPI)
+    tara-ui/               (Frontend – HTML/CSS/JS)
+        index.html
+        login.html
+        signup.html
 
-### Run the server
-```
+------------------------------------------------------------
+
+# BACKEND (FASTAPI)
+
+## Run Backend
 cd tara-project/tara-ai
-uvicorn main:app --reload
-```
+python -m uvicorn main:app --reload
 
-Runs at:
-```
+Backend runs at:
 http://127.0.0.1:8000
-```
 
-### Endpoints
-| Method | Route                | Description |
-|--------|-----------------------|-------------|
-| POST   | /chat                | Loan workflow + messages |
-| GET    | /download-sanction   | Returns sanction letter PDF |
+------------------------------------------------------------
 
-## Frontend (HTML/CSS/JS)
+# API ENDPOINTS
 
-Launch the UI by opening:
-```
-tara-project/tara-ui/index.html
-```
+POST /login               → user login
+POST /signup              → user signup
+POST /chat                → loan workflow
+GET  /download-sanction   → returns sanction PDF
 
-### UI Features
-- Chat interface  
-- Dark/light mode toggle  
-- Message timestamps (aligned left/right)  
-- Auto‑clickable links  
-- Reaction menu (👍 ❤️ 😂 😮 😢) — one reaction per message  
-- Smooth bubble alignment  
-- Typing indicator  
+------------------------------------------------------------
 
-Communicates with backend via:
-```javascript
-fetch("http://127.0.0.1:8000/chat", { ... })
-```
+# FRONTEND
 
-## Loan Flow
-1. User enters loan amount  
-2. Enters salary  
-3. Enters PAN  
-4. Backend checks:
-   - PAN format  
-   - Loan ≤ 20× salary  
-   - Minimum income requirement  
-5. If eligible → generate sanction letter (PDF)
-
-## Sanction Letter (PDF)
-Generated via ReportLab. Includes:
-- Loan amount  
-- Salary  
-- PAN  
-- Terms & conditions  
-
-Downloaded via:
-```
-/download-sanction
-```
-
-## Tech Stack
-### Backend
-- Python  
-- FastAPI  
-- Uvicorn  
-- ReportLab  
-
-### Frontend
-- HTML  
-- CSS  
-- JavaScript  
-
-## How to Run Entire Project
-
-### 1️⃣ Start Backend
-```
-cd tara-project/tara-ai
-uvicorn main:app --reload
-```
-
-### 2️⃣ Start Frontend
 Open:
-```
-tara-project/tara-ui/index.html
-```
+tara-project/tara-ui/login.html
 
-## Future Improvements
-- Stronger underwriting logic  
-- Chat history storage  
-- Deployment to cloud  
-- UI animations  
-- Login + dashboard  
+After login:
+index.html loads the chat interface.
+
+------------------------------------------------------------
+
+# UI FEATURES
+
+- Glassmorphism animated UI
+- Floating + glow effects
+- Login + Signup pages
+- Session handling
+- Logout button
+- Dark/Light theme toggle
+- Chat UI:
+    - timestamps
+    - clickable links
+    - reaction bar (👍 ❤️ 😂 😮 😢)
+    - auto‑scroll
+    - smooth alignment
+    - typing‑flow experience
+
+Frontend communicates via:
+fetch("http://127.0.0.1:8000/chat")
+
+------------------------------------------------------------
+
+# AUTHENTICATION FLOW
+
+Signup → saved in users.json  
+Login → sets:
+localStorage.setItem("loggedIn", "true")
+
+Index page protection:
+if (!localStorage.getItem("loggedIn"))
+    redirect to login.html
+
+Logout:
+localStorage.removeItem("loggedIn")
+redirect to login.html
+
+------------------------------------------------------------
+
+# LOAN FLOW
+
+1. User enters loan amount
+2. User enters salary
+3. User enters PAN
+4. Backend checks:
+   - PAN format
+   - Salary ≥ 20,000
+   - Loan ≤ salary × 20
+5. If valid → sanction letter generated (PDF)
+
+------------------------------------------------------------
+
+# PDF SANCTION LETTER
+
+Generated using ReportLab.
+Includes:
+- Loan amount
+- Salary
+- PAN
+- Terms & Conditions
+
+Available at:
+http://127.0.0.1:8000/download-sanction
+
+------------------------------------------------------------
+
+# TECH STACK
+
+Backend:
+- Python
+- FastAPI
+- Uvicorn
+- ReportLab
+
+Frontend:
+- HTML
+- CSS
+- JavaScript
+
+------------------------------------------------------------
+
+# HOW TO RUN EVERYTHING
+
+## Start Backend
+cd tara-project/tara-ai
+python -m uvicorn main:app --reload
+
+## Start Frontend
+Open login.html in browser
+
+------------------------------------------------------------
+
+# FUTURE IMPROVEMENTS
+
+- Email OTP verification
+- Database integration
+- Stronger underwriting logic
+- Deployment (Render / Netlify / Vercel)
+- Dashboard + analytics
+
