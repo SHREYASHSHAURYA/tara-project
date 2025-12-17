@@ -112,15 +112,5 @@ For navigation:
 
 ---
 
-## ✔️ GitHub Usage (Now Working Clean)
-Future updates require only:
-
-```bash
-git add .
-git commit -m "update"
-git push
-```
-
----
 
 
